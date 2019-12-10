@@ -52,9 +52,40 @@ def get_content(selecter, choice, count):
         text.append(
             "{}：{} [thepaper.cn](https://www.thepaper.cn/{})".format(
                 i % count+1, content[i][1], content[i][0]))
-    text = "\n\n".join(text)
+    text = "\n".join(text)
 
     return text
+
+
+def start(update, context):
+    text = ("1. 获取热点新闻：/get_news \n"
+            "2. 获取热点话题：/get_topics \n"
+            "3. 获取热点评论：/get_comment \n"
+            "4. 获取热点问答：/get_answer")
+
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text=text)
+
+
+def get_news(update, context):
+    text = ("1. 今日热点新闻：/get_day \n"
+            "2. 三天热点新闻：/get_days \n"
+            "3. 本周热点新闻：/get_week")
+
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text=text)
+
+
+def get_topics(update, context):
+    text = ("1. 今日热点话题：/get_day_topic \n"
+            "2. 三天热点话题：/get_days_topic \n"
+            "3. 本周热点话题：/get_week_topic")
+
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text=text)
 
 
 def get_day(update, context):
@@ -130,7 +161,7 @@ def get_comment(update, context):
                 original_news[i][1],
                 content[i][1],
                 original_news[i][0]))
-    text = "\n\n".join(text)
+    text = "\n".join(text)
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
@@ -160,7 +191,7 @@ def get_answer(update, context):
                 question[i % 5][1],
                 re.sub(r"<br/>|[<<`*_>>]", "", answer[i][1]),
                 original_news[i][0]))
-    text = "\n\n".join(text)
+    text = "\n".join(text)
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
@@ -179,6 +210,9 @@ if __name__ == "__main__":
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("get_news", get_news))
+    dp.add_handler(CommandHandler("get_topics", get_topics))
     dp.add_handler(CommandHandler("get_day", get_day))
     dp.add_handler(CommandHandler("get_days", get_days))
     dp.add_handler(CommandHandler("get_week", get_week))
