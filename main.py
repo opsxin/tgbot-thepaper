@@ -20,7 +20,7 @@ choice_map = {
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.DEBUG
+    level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
@@ -199,6 +199,10 @@ def get_answer(update, context):
         parse_mode=ParseMode.MARKDOWN)
 
 
+def echo(update, context):
+    start(update, context)
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -221,6 +225,8 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("get_week_topic", get_week_topic))
     dp.add_handler(CommandHandler("get_comment", get_comment))
     dp.add_handler(CommandHandler("get_answer", get_answer))
+
+    dp.add_handler(MessageHandler(Filters.text, echo))
 
     dp.add_error_handler(error)
 
