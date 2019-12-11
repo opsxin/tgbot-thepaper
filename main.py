@@ -4,6 +4,7 @@ import redis
 import logging
 
 from datetime import datetime
+from configparser import ConfigParser
 from telegram import ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -22,12 +23,19 @@ def get_content(name, choice, count):
             datetime.strftime(
                 datetime.now(), "%Y 年 %m 月 %d 日"),
             choice_map[choice]))
-    for i in range((choice-1) * count, choice * count):
+
+    title = myredis.lrange(name, (choice-1) * count, choice * count)
+    url = myredis.lrange(
+        "{}_url".format(name),
+        (choice-1) * count,
+        choice * count)
+
+    for i in range(count):
         text.append(
             '{}：{} [thepaper.cn](https://www.thepaper.cn/{})'.format(
-                i % count + 1,
-                myredis.lrange(name, i, i)[0],
-                myredis.lrange("{}_url".format(name), i, i)[0]))
+                i + 1,
+                title[i],
+                url[i]))
     text = "\n".join(text)
 
     return text
@@ -125,13 +133,16 @@ def get_comment(update, context):
         "*{}，以下是今日热评：*".format(
             datetime.strftime(
                 datetime.now(), "%Y 年 %m 月 %d 日")))
+    title = myredis.lrange("source_title", 0, 5)
+    comment = myredis.lrange("comment", 0, 5)
+    url = myredis.lrange("source_title_url", 0, 5)
     for i in range(0, 5):
         text.append(
             "{}：{}\n热评：{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
                 i + 1,
-                myredis.lrange("source_title", i, i)[0],
-                myredis.lrange("comment", i, i)[0],
-                myredis.lrange("source_title_url", i, i)[0]))
+                title[i],
+                comment[i],
+                url[i]))
     text = "\n".join(text)
 
     context.bot.send_message(
@@ -146,15 +157,22 @@ def get_answer(update, context):
         "*{}，以下是今日热门问答：*".format(
             datetime.strftime(
                 datetime.now(), "%Y 年 %m 月 %d 日")))
+
     answer_lenth = myredis.llen("source_title")
-    for i in range(5, answer_lenth):
+
+    title = myredis.lrange("source_title", 5, answer_lenth)
+    question = myredis.lrange("question", 0, answer_lenth)
+    comment = myredis.lrange("comment", 5, answer_lenth)
+    url = myredis.lrange("source_title_url", 5, answer_lenth)
+
+    for i in range(0, answer_lenth - 5):
         text.append(
             "{}：{}\n问：{}\n答：{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
-                i % 5 + 1,
-                myredis.lrange("source_title", i, i)[0],
-                myredis.lrange("question", i-5, i-5)[0],
-                myredis.lrange("comment", i, i)[0],
-                myredis.lrange("source_title_url", i, i)[0]))
+                i + 1,
+                title[i],
+                question[i],
+                comment[i],
+                url[i]))
     text = "\n".join(text)
 
     context.bot.send_message(
@@ -173,7 +191,11 @@ def error(update, context):
 
 
 if __name__ == "__main__":
-    TOKEN = ""
+    config = ConfigParser()
+    config.read("config.ini", encoding="UTF-8")
+
+    TOKEN = config.get("Telegram", "Token")
+
     choice_map = {
         1: "今日",
         2: "三天",
@@ -181,13 +203,12 @@ if __name__ == "__main__":
     }
 
     pool = redis.ConnectionPool(
-        host="172.17.0.2",
-        port=6379,
-        password="75tVW7WVa3h3Fzk$",
+        host=config.get("Redis", "Host"),
+        port=config.get("Redis", "Port"),
+        password=config.get("Redis", "Passwd"),
         decode_responses=True)
     myredis = redis.Redis(
         connection_pool=pool,
-        charset="utf-8",
         decode_responses=True)
 
     updater = Updater(TOKEN, use_context=True)

@@ -5,20 +5,22 @@ import redis
 import requests
 
 from bs4 import BeautifulSoup
+from configparser import ConfigParser
 
 
 def get_paper():
     URL = "https://www.thepaper.cn/"
-    html_doc = requests.get(URL).text
-    # with open("thepaper.html", "w", encoding="UTF-8") as f:
-    #     f.writelines(html_doc)
-    # with open("thepaper.html", "r", encoding="UTF-8") as f:
-    #     html_doc = f.readlines()
-    # return str(html_doc)
-    return html_doc
+    return requests.get(URL).text
 
 
 def save_news_topic(soup, myredis, selecter, name):
+    """存储新闻和话题
+
+    Args:
+        selecter: BeautifulSoup 的 select。
+            参数可以是 'id', '.class'
+        name: redis 的 key 值
+    """
     select_content = str(soup.select(selecter))
     contents = re.findall(re_findall, select_content)
     for content in contents:
@@ -33,7 +35,7 @@ def save_comment_answer(soup, myredis):
     question = re.findall(re_findall, select_content)
     select_content = str(soup.select(".ansright_cont"))
     comment = re.findall(re_findall, select_content)
-    # 问答每日不一定有 5 个
+    # 问答每日为 [1, 5] 个
     comment_length = len(soup.select(".ansright_cont"))
     question_length = len(soup.select(".taq_ct"))
     for i in range(0, comment_length):
@@ -46,10 +48,13 @@ def save_comment_answer(soup, myredis):
 
 
 def main():
+    config = ConfigParser()
+    config.read("config.ini", encoding="UTF-8")
+
     pool = redis.ConnectionPool(
-        host="172.17.0.2",
-        port=6379,
-        password="75tVW7WVa3h3Fzk$",
+        host=config.get("Redis", "Host"),
+        port=config.get("Redis", "Port"),
+        password=config.get("Redis", "Passwd"),
         decode_responses=True)
     r = redis.Redis(
         connection_pool=pool,
