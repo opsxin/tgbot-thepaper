@@ -59,7 +59,7 @@ def main():
     r = redis.Redis(
         connection_pool=pool,
         decode_responses=True)
-    r.flushall()
+    r.flushdb()
 
     soup = BeautifulSoup(get_paper(), "lxml")
 
