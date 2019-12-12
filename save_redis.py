@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import re
+import sys
 import redis
 import requests
 
@@ -10,7 +11,15 @@ from configparser import ConfigParser
 
 def get_paper():
     URL = "https://www.thepaper.cn/"
-    return requests.get(URL).text
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36'
+    }
+    try:
+        html_doc = requests.get(URL, headers=headers).text
+    except Exception:
+        sys.exit(1)
+    else:
+        return html_doc
 
 
 def save_news_topic(soup, myredis, selecter, name):
