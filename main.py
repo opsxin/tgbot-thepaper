@@ -11,7 +11,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.DEBUG
 )
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,13 @@ def send_md_message(func):
     def inner(update, context):
         text = func(update, context)
 
+        if update.message:
+            chat_id = update.message.chat.id
+        else:
+            chat_id = update.channel_post.chat.id
+
         context.bot.send_message(
-            chat_id=update.message.chat_id,
+            chat_id=chat_id,
             text=text,
             parse_mode=ParseMode.MARKDOWN)
     return inner
@@ -228,6 +233,7 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("get_answer", get_answer))
 
     dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_handler(MessageHandler(Filters.command, get_day))
 
     dp.add_error_handler(error)
 
