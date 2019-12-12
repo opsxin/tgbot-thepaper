@@ -11,12 +11,13 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.DEBUG
+    level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
 
 def send_text_message(func):
+    """发送文本信息"""
     def inner(update, context):
         text = func(update, context)
 
@@ -27,16 +28,12 @@ def send_text_message(func):
 
 
 def send_md_message(func):
+    """发送 Markdown 信息"""
     def inner(update, context):
         text = func(update, context)
 
-        if update.message:
-            chat_id = update.message.chat.id
-        else:
-            chat_id = update.channel_post.chat.id
-
         context.bot.send_message(
-            chat_id=chat_id,
+            chat_id=update.message.chat.id,
             text=text,
             parse_mode=ParseMode.MARKDOWN)
     return inner
@@ -62,14 +59,12 @@ def get_content(name, choice, count):
                 i + 1,
                 title[i],
                 url[i]))
-    text = "\n".join(text)
-
-    return text
+    return "\n".join(text)
 
 
 @send_text_message
 def start(update, context):
-    text = ("欢迎关注 ~.~ \n"
+    text = ("欢迎关注 o(*≧▽≦)ツ \n"
             "热点新闻：/get_news \n"
             "热点话题：/get_topics \n"
             "热点评论：/get_comment \n"
@@ -82,7 +77,6 @@ def get_news(update, context):
     text = ("1. 今日热点新闻：/get_day \n"
             "2. 三天热点新闻：/get_days \n"
             "3. 本周热点新闻：/get_week")
-
     return text
 
 
@@ -91,50 +85,37 @@ def get_topics(update, context):
     text = ("1. 今日热点话题：/get_day_topic \n"
             "2. 三天热点话题：/get_days_topic \n"
             "3. 本周热点话题：/get_week_topic")
-
     return text
 
 
 @send_md_message
 def get_day(update, context):
-    text = get_content("news", 1, 10)
-
-    return text
+    return get_content("news", 1, 10)
 
 
 @send_md_message
 def get_days(update, context):
-    text = get_content("news", 2, 10)
-
-    return text
+    return get_content("news", 2, 10)
 
 
 @send_md_message
 def get_week(update, context):
-    text = get_content("news", 3, 10)
-
-    return text
+    return get_content("news", 3, 10)
 
 
 @send_md_message
 def get_day_topic(update, context):
-    text = get_content("topic", 1, 5)
-
-    return text
+    return get_content("topic", 1, 5)
 
 
 @send_md_message
 def get_days_topic(update, context):
-    text = get_content("topic", 2, 5)
-
-    return text
+    return get_content("topic", 2, 5)
 
 
 @send_md_message
 def get_week_topic(update, context):
-    text = get_content("topic", 3, 5)
-
-    return text
+    return get_content("topic", 3, 5)
 
 
 @send_md_message
@@ -144,9 +125,11 @@ def get_comment(update, context):
         "*{}，以下是今日热评：*".format(
             datetime.strftime(
                 datetime.now(), "%Y 年 %m 月 %d 日")))
+
     title = myredis.lrange("source_title", 0, 5)
     comment = myredis.lrange("comment", 0, 5)
     url = myredis.lrange("source_title_url", 0, 5)
+
     for i in range(0, 5):
         text.append(
             "{}：{}\n热评：{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
@@ -154,9 +137,7 @@ def get_comment(update, context):
                 title[i],
                 comment[i],
                 url[i]))
-    text = "\n".join(text)
-
-    return text
+    return "\n".join(text)
 
 
 @send_md_message
@@ -182,13 +163,12 @@ def get_answer(update, context):
                 question[i],
                 comment[i],
                 url[i]))
-    text = "\n".join(text)
-
-    return text
+    return "\n".join(text)
 
 
-def echo(update, context):
-    start(update, context)
+@send_text_message
+def unknown(update, context):
+    return "抱歉，不支持的指令 ╮(￣▽￣)╭"
 
 
 def error(update, context):
@@ -232,8 +212,8 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("get_comment", get_comment))
     dp.add_handler(CommandHandler("get_answer", get_answer))
 
-    dp.add_handler(MessageHandler(Filters.text, echo))
-    dp.add_handler(MessageHandler(Filters.command, get_day))
+    dp.add_handler(MessageHandler(Filters.text, unknown))
+    dp.add_handler(MessageHandler(Filters.command, unknown))
 
     dp.add_error_handler(error)
 
