@@ -16,6 +16,27 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def send_text_message(func):
+    def inner(update, context):
+        text = func(update, context)
+
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=text)
+    return inner
+
+
+def send_md_message(func):
+    def inner(update, context):
+        text = func(update, context)
+
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=text,
+            parse_mode=ParseMode.MARKDOWN)
+    return inner
+
+
 def get_content(name, choice, count):
     text = []
     text.append(
@@ -41,92 +62,77 @@ def get_content(name, choice, count):
     return text
 
 
+@send_text_message
 def start(update, context):
     text = ("欢迎关注 ~.~ \n"
             "热点新闻：/get_news \n"
             "热点话题：/get_topics \n"
             "热点评论：/get_comment \n"
             "热点问答：/get_answer")
-
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text)
+    return text
 
 
+@send_text_message
 def get_news(update, context):
     text = ("1. 今日热点新闻：/get_day \n"
             "2. 三天热点新闻：/get_days \n"
             "3. 本周热点新闻：/get_week")
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text)
+    return text
 
 
+@send_text_message
 def get_topics(update, context):
     text = ("1. 今日热点话题：/get_day_topic \n"
             "2. 三天热点话题：/get_days_topic \n"
             "3. 本周热点话题：/get_week_topic")
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text)
+    return text
 
 
+@send_md_message
 def get_day(update, context):
     text = get_content("news", 1, 10)
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        parse_mode=ParseMode.MARKDOWN)
+    return text
 
 
+@send_md_message
 def get_days(update, context):
     text = get_content("news", 2, 10)
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        parse_mode=ParseMode.MARKDOWN)
+    return text
 
 
+@send_md_message
 def get_week(update, context):
     text = get_content("news", 3, 10)
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        parse_mode=ParseMode.MARKDOWN)
+    return text
 
 
+@send_md_message
 def get_day_topic(update, context):
     text = get_content("topic", 1, 5)
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        parse_mode=ParseMode.MARKDOWN)
+    return text
 
 
+@send_md_message
 def get_days_topic(update, context):
     text = get_content("topic", 2, 5)
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        parse_mode=ParseMode.MARKDOWN)
+    return text
 
 
+@send_md_message
 def get_week_topic(update, context):
     text = get_content("topic", 3, 5)
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        parse_mode=ParseMode.MARKDOWN)
+    return text
 
 
+@send_md_message
 def get_comment(update, context):
     text = []
     text.append(
@@ -145,12 +151,10 @@ def get_comment(update, context):
                 url[i]))
     text = "\n".join(text)
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        parse_mode=ParseMode.MARKDOWN)
+    return text
 
 
+@send_md_message
 def get_answer(update, context):
     text = []
     text.append(
@@ -175,10 +179,7 @@ def get_answer(update, context):
                 url[i]))
     text = "\n".join(text)
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        parse_mode=ParseMode.MARKDOWN)
+    return text
 
 
 def echo(update, context):
