@@ -10,6 +10,8 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 
 logging.basicConfig(
+    filename="thepaper.log",
+    filemode="a+",
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
@@ -212,8 +214,9 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("get_comment", get_comment))
     dp.add_handler(CommandHandler("get_answer", get_answer))
 
-    dp.add_handler(MessageHandler(Filters.text, unknown))
-    dp.add_handler(MessageHandler(Filters.command, unknown))
+    dp.add_handler(MessageHandler(
+        Filters.text | Filters.command,
+        unknown))
 
     dp.add_error_handler(error)
 
