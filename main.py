@@ -128,11 +128,15 @@ def get_comment(update, context):
             datetime.strftime(
                 datetime.now(), "%Y 年 %m 月 %d 日")))
 
-    title = myredis.lrange("source_title", 0, 5)
-    comment = myredis.lrange("comment", 0, 5)
-    url = myredis.lrange("source_title_url", 0, 5)
+    source_title_length = int(myredis.get("source_title_length"))
+    question_length = int(myredis.get("question_length"))
+    topic_length = source_title_length - question_length
 
-    for i in range(0, 5):
+    title = myredis.lrange("source_title", 0, topic_length)
+    comment = myredis.lrange("comment", 0, topic_length)
+    url = myredis.lrange("source_title_url", 0, topic_length)
+
+    for i in range(0, topic_length):
         text.append(
             "{}：{}\n热评：{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
                 i + 1,
@@ -150,14 +154,25 @@ def get_answer(update, context):
             datetime.strftime(
                 datetime.now(), "%Y 年 %m 月 %d 日")))
 
-    answer_lenth = myredis.llen("source_title")
+    source_title_length = int(myredis.get("source_title_length"))
+    question_length = int(myredis.get("question_length"))
+    topic_length = source_title_length - question_length
 
-    title = myredis.lrange("source_title", 5, answer_lenth)
-    question = myredis.lrange("question", 0, answer_lenth)
-    comment = myredis.lrange("comment", 5, answer_lenth)
-    url = myredis.lrange("source_title_url", 5, answer_lenth)
+    title = myredis.lrange(
+        "source_title",
+        topic_length,
+        source_title_length)
+    question = myredis.lrange("question", 0, question_length)
+    comment = myredis.lrange(
+        "comment",
+        topic_length,
+        source_title_length)
+    url = myredis.lrange(
+        "source_title_url",
+        topic_length,
+        source_title_length)
 
-    for i in range(0, answer_lenth - 5):
+    for i in range(0, question_length):
         text.append(
             "{}：{}\n问：{}\n答：{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
                 i + 1,

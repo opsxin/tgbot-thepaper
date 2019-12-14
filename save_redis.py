@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import re
-import sys
 import redis
 import requests
 
@@ -17,6 +16,7 @@ def get_paper():
     try:
         html_doc = requests.get(URL, headers=headers).text
     except Exception:
+        import sys
         sys.exit(1)
     else:
         return html_doc
@@ -38,16 +38,22 @@ def save_news_topic(soup, myredis, selecter, name):
 
 
 def save_comment_answer(soup, myredis):
-    select_content = str(soup.select(".taq_name"))
-    source_title = re.findall(re_findall, select_content)
-    select_content = str(soup.select(".taq_ct"))
-    question = re.findall(re_findall, select_content)
-    select_content = str(soup.select(".ansright_cont"))
-    comment = re.findall(re_findall, select_content)
-    # 问答每日为 [1, 5] 个
-    comment_length = len(soup.select(".ansright_cont"))
+    source_title = re.findall(
+        re_findall,
+        str(soup.select(".taq_name")))
+    question = re.findall(
+        re_findall,
+        str(soup.select(".taq_ct")))
+    comment = re.findall(
+        re_findall,
+        str(soup.select(".ansright_cont")))
+
+    # 热评，问答每日为 [1, 5] 个
+    source_title_length = len(soup.select(".taq_name"))
     question_length = len(soup.select(".taq_ct"))
-    for i in range(0, comment_length):
+    myredis.set("source_title_length", source_title_length)
+    myredis.set("question_length", question_length)
+    for i in range(0, source_title_length):
         myredis.rpush(
             "comment",
             re.sub(r"<br/>|[<<`*_>>]", "", comment[i][1]))
