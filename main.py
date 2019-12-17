@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 
+import os
+import sys
 import redis
 import logging
 
+from threading import Thread
 from datetime import datetime
 from configparser import ConfigParser
 from telegram import ParseMode
@@ -41,6 +44,17 @@ def send_md_message(func):
     return inner
 
 
+def restricted_user(func):
+    """只允许列表中用户访问特定命令"""
+    def inner(update, context):
+        user_id = update.effective_user.id
+        if user_id not in ALLOW_USER_LIST:
+            print("不允许的用户: {}.".format(user_id))
+            return
+        return func(update, context)
+    return inner
+
+
 def get_content(name, choice, count):
     text = []
     text.append(
@@ -62,6 +76,17 @@ def get_content(name, choice, count):
                 title[i],
                 url[i]))
     return "\n".join(text)
+
+
+def restart_bot():
+    print("重启 Bot...")
+    updater.stop()
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
+
+@restricted_user
+def restart(update, context):
+    Thread(target=restart_bot).start()
 
 
 @send_text_message
@@ -198,6 +223,7 @@ if __name__ == "__main__":
     config.read("config.ini", encoding="UTF-8")
 
     TOKEN = config.get("Telegram", "Token")
+    ALLOW_USER_LIST = config.get("Telegram", "Allow_User")
 
     choice_map = {
         1: "今日",
@@ -228,6 +254,7 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("get_week_topic", get_week_topic))
     dp.add_handler(CommandHandler("get_comment", get_comment))
     dp.add_handler(CommandHandler("get_answer", get_answer))
+    dp.add_handler(CommandHandler("rb", restart))
 
     dp.add_handler(MessageHandler(
         Filters.text | Filters.command,
