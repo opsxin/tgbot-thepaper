@@ -7,7 +7,7 @@ import logging
 import telegram.ext
 
 from threading import Thread
-from datetime import datetime
+from datetime import datetime, time
 from configparser import ConfigParser
 from telegram import ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -282,7 +282,7 @@ if __name__ == "__main__":
 
     dp.add_error_handler(error)
 
-    job_daily = job.run_daily(channel_daily, datetime.time(8))
+    job_daily = job.run_daily(channel_daily, time(8))
 
     updater.start_polling()
     updater.idle()
