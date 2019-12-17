@@ -4,6 +4,7 @@ import os
 import sys
 import redis
 import logging
+import telegram.ext
 
 from threading import Thread
 from datetime import datetime
@@ -39,6 +40,18 @@ def send_md_message(func):
 
         context.bot.send_message(
             chat_id=update.message.chat.id,
+            text=text,
+            parse_mode=ParseMode.MARKDOWN)
+    return inner
+
+
+def send_channel_message(func):
+    """发送 Markdown 信息到 Channel"""
+    def inner(context):
+        text = func(context)
+
+        context.bot.send_message(
+            chat_id="@thepapercn",
             text=text,
             parse_mode=ParseMode.MARKDOWN)
     return inner
@@ -82,6 +95,11 @@ def restart_bot():
     print("重启 Bot...")
     updater.stop()
     os.execl(sys.executable, sys.executable, *sys.argv)
+
+
+@send_channel_message
+def channel_daily(context: telegram.ext.CallbackContext):
+    return get_content("news", 1, 10)
 
 
 @restricted_user
@@ -223,6 +241,7 @@ if __name__ == "__main__":
     config.read("config.ini", encoding="UTF-8")
 
     TOKEN = config.get("Telegram", "Token")
+
     ALLOW_USER_LIST = config.get("Telegram", "Allow_User")
 
     choice_map = {
@@ -242,6 +261,7 @@ if __name__ == "__main__":
 
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
+    job = updater.job_queue
 
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("get_news", get_news))
@@ -261,6 +281,8 @@ if __name__ == "__main__":
         unknown))
 
     dp.add_error_handler(error)
+
+    job_daily = job.run_daily(channel_daily, datetime.time(8))
 
     updater.start_polling()
     updater.idle()
