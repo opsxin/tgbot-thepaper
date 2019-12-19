@@ -15,7 +15,8 @@ def get_paper():
     }
     try:
         html_doc = requests.get(URL, headers=headers).text
-    except Exception:
+    except requests.exceptions.RequestException as e:
+        print(e)
         import sys
         sys.exit(1)
     else:
@@ -24,7 +25,6 @@ def get_paper():
 
 def save_news_topic(soup, myredis, selecter, name):
     """存储新闻和话题
-
     Args:
         selecter: BeautifulSoup 的 select。
             参数可以是 'id', '.class'
@@ -66,6 +66,8 @@ def main():
     config = ConfigParser()
     config.read("config.ini", encoding="UTF-8")
 
+    soup = BeautifulSoup(get_paper(), "lxml")
+
     pool = redis.ConnectionPool(
         host=config.get("Redis", "Host"),
         port=config.get("Redis", "Port"),
@@ -75,8 +77,6 @@ def main():
         connection_pool=pool,
         decode_responses=True)
     r.flushdb()
-
-    soup = BeautifulSoup(get_paper(), "lxml")
 
     save_comment_answer(soup, r)
     save_news_topic(soup, r, ".list_hot", "news")
