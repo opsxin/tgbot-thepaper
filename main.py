@@ -4,6 +4,7 @@ import os
 import sys
 import redis
 import logging
+import subprocess
 import telegram.ext
 
 from threading import Thread
@@ -61,7 +62,7 @@ def restricted_user(func):
     """只允许列表中用户访问特定命令"""
     def inner(update, context):
         user_id = update.effective_user.id
-        if user_id not in ALLOW_USER_LIST:
+        if str(user_id) not in ALLOW_USER_LIST:
             print("不允许的用户: {}.".format(user_id))
             return
         return func(update, context)
@@ -84,7 +85,7 @@ def get_content(name, choice, count):
 
     for i in range(count):
         text.append(
-            '{}：{} [thepaper.cn](https://www.thepaper.cn/{})'.format(
+            '{}：{} \n[thepaper.cn](https://www.thepaper.cn/{})\n'.format(
                 i + 1,
                 title[i],
                 url[i]))
@@ -95,6 +96,21 @@ def restart_bot():
     print("重启 Bot...")
     updater.stop()
     os.execl(sys.executable, sys.executable, *sys.argv)
+
+
+@restricted_user
+@send_text_message
+def reload_news(update, context):
+    print("开始获取最新数据")
+    s = subprocess.Popen(
+        'bash /root/Python/get_news.sh',
+        shell=True,
+        executable="/bin/bash")
+    s.wait()
+    if s.returncode == 0:
+        return "获取完成。"
+    else:
+        return "获取失败，请重试。"
 
 
 @send_channel_message
@@ -275,6 +291,7 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("get_comment", get_comment))
     dp.add_handler(CommandHandler("get_answer", get_answer))
     dp.add_handler(CommandHandler("rb", restart))
+    dp.add_handler(CommandHandler("rn", reload_news))
 
     dp.add_handler(MessageHandler(
         Filters.text | Filters.command,
@@ -283,6 +300,7 @@ if __name__ == "__main__":
     dp.add_error_handler(error)
 
     job_daily = job.run_daily(channel_daily, time(8))
+    job_daily_2 = job.run_daily(channel_daily, time(20))
 
     updater.start_polling()
     updater.idle()
