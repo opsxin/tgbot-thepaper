@@ -217,29 +217,32 @@ def get_answer(update, context):
     question_length = int(myredis.get("question_length"))
     topic_length = source_title_length - question_length
 
-    title = myredis.lrange(
-        "source_title",
-        topic_length,
-        source_title_length)
-    question = myredis.lrange("question", 0, question_length)
-    comment = myredis.lrange(
-        "comment",
-        topic_length,
-        source_title_length)
-    url = myredis.lrange(
-        "source_title_url",
-        topic_length,
-        source_title_length)
+    if question_length != 0:
+        title = myredis.lrange(
+            "source_title",
+            topic_length,
+            source_title_length)
+        question = myredis.lrange("question", 0, question_length)
+        comment = myredis.lrange(
+            "comment",
+            topic_length,
+            source_title_length)
+        url = myredis.lrange(
+            "source_title_url",
+            topic_length,
+            source_title_length)
 
-    for i in range(0, question_length):
-        text.append(
-            "{}：{}\n问：{}\n答：{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
-                i + 1,
-                title[i],
-                question[i],
-                comment[i],
-                url[i]))
-    return "\n".join(text)
+        for i in range(0, question_length):
+            text.append(
+                "{}：{}\n问：{}\n答：{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
+                    i + 1,
+                    title[i],
+                    question[i],
+                    comment[i],
+                    url[i]))
+        return "\n".join(text)
+    else:
+        return "抱歉，暂未获取到热回答。"
 
 
 @send_text_message

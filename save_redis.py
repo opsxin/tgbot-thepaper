@@ -57,7 +57,8 @@ def save_comment_answer(soup, myredis):
         myredis.rpush(
             "comment",
             re.sub(r"<br/>|[<<`*_>>]", "", comment[i][1]))
-        myredis.rpush("question", question[i % question_length][1])
+        if question_length != 0:
+            myredis.rpush("question", question[i % question_length][1])
         myredis.rpush("source_title", source_title[i][1])
         myredis.rpush("source_title_url", source_title[i][0])
 
