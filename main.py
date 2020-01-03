@@ -87,6 +87,9 @@ def get_content(name, choice, count):
                 i + 1,
                 title[i],
                 url[i]))
+    news_timestamp = myredis.get("news_time")
+    news_time = datetime.fromtimestamp(
+        float(news_timestamp)).strftime("%y-%m-%d %H:%M:%S")
     text.append("_新闻获取时间: {}_\n".format(news_time))
     return "\n".join(text)
 
@@ -200,6 +203,9 @@ def get_comment(update, context):
                 title[i],
                 comment[i],
                 url[i]))
+    news_timestamp = myredis.get("news_time")
+    news_time = datetime.fromtimestamp(
+        float(news_timestamp)).strftime("%y-%m-%d %H:%M:%S")
     text.append("_新闻获取时间: {}_\n".format(news_time))
     return "\n".join(text)
 
@@ -239,6 +245,9 @@ def get_answer(update, context):
                     question[i],
                     comment[i],
                     url[i]))
+        news_timestamp = myredis.get("news_time")
+        news_time = datetime.fromtimestamp(
+            float(news_timestamp)).strftime("%y-%m-%d %H:%M:%S")
         text.append("_新闻获取时间: {}_\n".format(news_time))
         return "\n".join(text)
     else:
@@ -278,10 +287,6 @@ if __name__ == "__main__":
         connection_pool=pool,
         decode_responses=True)
 
-    news_timestamp = myredis.get("news_time")
-    news_time = datetime.fromtimestamp(
-        float(news_timestamp)).strftime("%y-%m-%d %H:%M:%S")
-
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
     job = updater.job_queue
@@ -311,3 +316,4 @@ if __name__ == "__main__":
 
     updater.start_polling()
     updater.idle()
+
