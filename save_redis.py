@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import re
+import time
 import redis
 import requests
 
@@ -82,6 +83,7 @@ def main():
     save_comment_answer(soup, r)
     save_news_topic(soup, r, ".list_hot", "news")
     save_news_topic(soup, r, ".topic_hot", "topic")
+    r.set("news_time", time.time())
 
 
 if __name__ == "__main__":

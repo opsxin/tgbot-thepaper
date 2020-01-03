@@ -15,8 +15,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 
 logging.basicConfig(
-    filename="thepaper.log",
-    filemode="a+",
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
@@ -89,6 +87,7 @@ def get_content(name, choice, count):
                 i + 1,
                 title[i],
                 url[i]))
+    text.append("_新闻获取时间: {}_\n".format(news_time))
     return "\n".join(text)
 
 
@@ -102,11 +101,10 @@ def restart_bot():
 @send_text_message
 def reload_news(update, context):
     print("开始获取最新数据")
-    s = subprocess.Popen(
+    s = subprocess.run(
         'bash /root/Python/get_news.sh',
         shell=True,
         executable="/bin/bash")
-    s.wait()
     if s.returncode == 0:
         return "获取完成。"
     else:
@@ -202,6 +200,7 @@ def get_comment(update, context):
                 title[i],
                 comment[i],
                 url[i]))
+    text.append("_新闻获取时间: {}_\n".format(news_time))
     return "\n".join(text)
 
 
@@ -234,12 +233,13 @@ def get_answer(update, context):
 
         for i in range(0, question_length):
             text.append(
-                "{}：{}\n问：{}\n答：{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
+                "{}：{}\n*Q：*{}\n*A：*{} [thepaper.cn](https://www.thepaper.cn/{})\n".format(
                     i + 1,
                     title[i],
                     question[i],
                     comment[i],
                     url[i]))
+        text.append("_新闻获取时间: {}_\n".format(news_time))
         return "\n".join(text)
     else:
         return "抱歉，暂未获取到热回答。"
@@ -278,6 +278,10 @@ if __name__ == "__main__":
         connection_pool=pool,
         decode_responses=True)
 
+    news_timestamp = myredis.get("news_time")
+    news_time = datetime.fromtimestamp(
+        float(news_timestamp)).strftime("%y-%m-%d %H:%M:%S")
+
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
     job = updater.job_queue
@@ -307,4 +311,3 @@ if __name__ == "__main__":
 
     updater.start_polling()
     updater.idle()
-
