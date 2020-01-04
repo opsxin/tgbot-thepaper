@@ -1,0 +1,12 @@
+[Unit]
+Description=Telegram Bot for thepaper
+After=network.target
+
+[Service]
+ExecStart=/thepaper_bot/.venv/bin/uwsgi --ini /thepaper_bot/uwsgi.ini
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
+
