@@ -17,5 +17,6 @@ CACHES = {
 }
 
 CRONJOBS = [
-    ('00 8,20 * * *', 'bot.my_crontab.send_news_to_channel','>> crontab.log')
+    ('00 8,20 * * *', 'bot.my_crontab.send_news_to_channel','>> crontab.log'),
+    ('*/10 * * * *', 'bot.my_crontab.save_news','>> crontab.log'),
 ]
