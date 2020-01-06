@@ -1,5 +1,5 @@
 from django.conf import settings
-from .commands import get_news_topic
+from .botcommands import get_news_topic
 
 bot_token = settings.DJANGO_BOT.get("BOT_TOKEN")
 url = "https://api.telegram.org/bot{}/sendmessage".format(bot_token)
