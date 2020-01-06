@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 import json
 from .models import MessageLog
-from .botcommands import get_comment_question, get_news_topic
+from .botcommands import get_comment_question, get_news_topic, common_reply
 from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -47,5 +47,9 @@ def webhook(request):
                 except Exception as e:
                     print(e)
             else:
-                return HttpResponse("失败")
+                command = getattr(common_reply.CommonReply(), "unknown")
+                try:
+                    command(url=url, chat_id=chat_id)
+                except Exception as e:
+                    print(e)
     return HttpResponse("完成")
