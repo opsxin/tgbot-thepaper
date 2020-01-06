@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 import json
+from .models import MessageLog
 from .botcommands import get_comment_question, get_news_topic
 from django.conf import settings
 from django.http import HttpResponse
@@ -25,6 +26,13 @@ def webhook(request):
         chat_id = data_json["message"].get(
             "chat", {"id": None}).get("id")
         content = data_json["message"].get("text", None)
+        username = data_json["message"].get(
+            "chat", {"username": None}).get("username")
+
+        if chat_id:
+            msg_log = MessageLog(chat_id=chat_id, username=username,
+                                 text=content, json_text=data_json)
+            msg_log.save()
 
         if chat_id and content:
             command, *args = content.split(" ", 1)
