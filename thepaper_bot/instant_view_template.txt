@@ -1,0 +1,53 @@
+~version: "2.1"
+
+# Example：
+# https://t.me/iv?url={URL}&rhash=71b085e544938c
+# https://t.me/iv?url=https://www.thepaper.cn/newsDetail_forward_5442188&rhash=71b085e544938c
+
+?path: /newsDetail_forward_\d+$
+
+title: //div/h1[@class="news_title"]
+title: //div[@class="video_txt_t"]/h2
+
+published_date: //div[@class="news_about"]/p[2]/text()
+published_date: //div[@class="video_info_left"]/span
+
+author: //div[@class="news_about"]/p[1]
+author: //div[@class="video_info_second"]/span
+
+body: //div[@class="news_txt"]
+body: //div[@class="video_txt_l"]/p
+
+@replace_tag(<fligure>): $body//strong[.//img]
+@replace_tag(<fligure>): $body//a[.//img]
+
+
+?path: /asktopic_detail_\d+$
+
+title: //div/h1[@class="video_user_profile"]
+title: //div[@class="title"]
+published_date: //div[@class="vuser_trbs"]/span
+published_date: //div[@class="handel clearfix"]/span[1]/text()
+author: //div[@class="user_sname"]/u 
+# body: //div[@class="video_ask_creator_abs"]
+body: //div[@class="ask_creator_body"]
+body: //div[@class="panel"]
+cover: //div[has-class("user_bd03")]
+
+# 问吧
+# @background_to_image: //div[has-class("user_bd03")]
+@remove: $body//div[@class="ask_qus_cont"]//div
+@remove: $body//div[@class="ask_answer"]//div[@style]
+@remove: $body//div[@class="ans_cont_more"]
+@remove: $body//div[@class="hdimg_bg"]
+@remove: //div[@class="vuser_trbs"]
+@remove: //div[@class="ask_write clearfix"]
+@remove: //div[@class="ask_creator_tit"]
+
+# 圆桌
+@remove: //div[@class="handel clearfix"]
+@remove: //div[has-class("nav_panel")]//span
+
+@replace_tag(<fligure>): $body//strong[.//img]
+@replace_tag(<fligure>): $body//a[.//img]
+@replace_tag(<p>): $body//div//h3
