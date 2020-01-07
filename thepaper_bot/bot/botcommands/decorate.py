@@ -1,3 +1,5 @@
+import logging as log
+
 from pip._vendor import requests
 from functools import wraps
 
@@ -11,7 +13,7 @@ def send_text_message(func):
         try:
             requests.get(kw.get("url", None), params=my_params)
         except Exception as e:
-            print(e)
+            log.error("BOT 发送消息失败: {}".format(e))
     return inner
 
 
@@ -25,20 +27,5 @@ def send_md_message(func):
         try:
             requests.get(kw.get("url", None), params=my_params)
         except Exception as e:
-            print(e)
+            log.error("BOT 发送消息失败: {}".format(e))
     return inner
-
-
-def restricted_user(chat_id):
-    """只允许列表中用户访问特定命令"""
-    def outer(func):
-        @wraps(func)
-        def inner(*args, **kw):
-            from django.conf import settings
-            allow_user = settings.DJANGO_BOT.get("ALLOW_USER")
-            if str(chat_id) not in allow_user:
-                print("不允许的用户: {}.".format(chat_id))
-                return
-            return func(*args, **kw)
-        return inner
-    return outer

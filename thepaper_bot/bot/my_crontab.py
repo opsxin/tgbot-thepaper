@@ -1,4 +1,5 @@
 import time
+import logging as log
 
 from bs4 import BeautifulSoup
 from .botcommands import get_news_topic
@@ -17,7 +18,11 @@ def send_news_to_channel():
     gnt = get_news_topic.NewsTopic()
     cmd = getattr(gnt, "get_day", None)
     if cmd:
-        cmd(url=url, chat_id=chat_id)
+        try:
+            cmd(url=url, chat_id=chat_id)
+            log.info("发送新闻到'{}'成功".format(chat_id))
+        except Exception as e:
+            log.error("发送新闻到'{}'失败: {}".format(chat_id, e))
 
 
 def save_news():
@@ -30,3 +35,5 @@ def save_news():
     save_news_depend.save_news_topic(soup, r, ".list_hot", "news")
     save_news_depend.save_news_topic(soup, r, ".topic_hot", "topic")
     r.set("news_time", time.time())
+
+    log.info("更新新闻数据成功")

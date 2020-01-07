@@ -2,6 +2,8 @@ from django.shortcuts import render
 
 # Create your views here.
 import json
+import logging as log
+
 from .models import MessageLog
 from .botcommands import get_comment_question, get_news_topic, common_reply
 from django.conf import settings
@@ -20,6 +22,7 @@ def webhook(request):
     try:
         data_json = json.loads(request.body)
     except:
+        log.info("异常 POST 请求")
         return HttpResponse("失败")
 
     if data_json.get("message", None):
@@ -46,11 +49,16 @@ def webhook(request):
                 try:
                     command(url=url, chat_id=chat_id)
                 except Exception as e:
-                    print(e)
+                    log.error(e)
+                    return HttpResponse("失败")
             else:
                 command = getattr(common_reply.CommonReply(), "unknown")
                 try:
                     command(url=url, chat_id=chat_id)
                 except Exception as e:
-                    print(e)
+                    log.error(e)
+                    return HttpResponse("失败")
+        else:
+            log.info("异常 POST 请求")
+            return HttpResponse("失败")
     return HttpResponse("完成")

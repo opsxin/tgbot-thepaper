@@ -2,7 +2,6 @@ DJANGO_BOT = {
     'WEBHOOK_HOST': "https://a.b.com",
     'WEBHOOK_PREFIX': "prefix/",
     'BOT_TOKEN': "", 
-    'ALLOW_USER': [""],
 }
 
 CACHES = {

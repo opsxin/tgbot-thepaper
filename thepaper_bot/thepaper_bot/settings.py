@@ -121,7 +121,55 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
+BASE_LOG_DIR = os.path.join(BASE_DIR, "logs")
+if not os.path.isdir(BASE_LOG_DIR):
+    os.mkdir(BASE_LOG_DIR)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '{levelname:7} {asctime} {module}.{funcName} {lineno:3} => {message}',
+            'style': '{',
+            'datefmt': '%Y/%m/%d %H:%M:%S',
+        },
+        'simple': {
+            'format': '{levelname:7} {asctime} => {message}',
+            'style': '{',
+            'datefmt': '%Y/%m/%d %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_LOG_DIR, "paper.log"),
+            'maxBytes': 1024 * 1024 * 100,
+            'backupCount': 5,
+            'formatter': 'standard',
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'file'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        }
+    },
+}
+
 try:
-    from .local_settings import * 
+    from .local_settings import *
 except:
     pass

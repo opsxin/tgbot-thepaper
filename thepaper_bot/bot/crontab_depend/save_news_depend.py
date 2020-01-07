@@ -1,5 +1,6 @@
 import re
 import requests
+import logging as log
 
 from bs4 import BeautifulSoup
 
@@ -12,10 +13,11 @@ def get_paper():
     try:
         html_doc = requests.get(URL, headers=headers).text
     except requests.exceptions.RequestException as e:
-        print(e)
+        log.error("请求澎湃数据失败: {}".format(e))
         import sys
         sys.exit(1)
     else:
+        log.info("请求澎湃数据成功")
         return html_doc
 
 
