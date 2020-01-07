@@ -26,13 +26,14 @@ def webhook(request):
         chat_id = data_json["message"].get(
             "chat", {"id": None}).get("id")
         content = data_json["message"].get("text", None)
+        name = data_json["message"].get(
+            "chat", {"first_name": None}).get("first_name")
         username = data_json["message"].get(
             "chat", {"username": None}).get("username")
 
         if chat_id:
-            msg_log = MessageLog(chat_id=chat_id, username=username,
-                                 text=content, json_text=data_json)
-            msg_log.save()
+            msg_log = MessageLog.objects.create(chat_id=chat_id, name=name, username=username,
+                                                text=content, json_text=data_json)
 
         if chat_id and content:
             command, *args = content.split(" ", 1)
