@@ -28,9 +28,10 @@ class NewsTopic(object):
 
         for i in range(count):
             text.append(
-                '{}：{} \n[thepaper.cn](https://www.thepaper.cn/{})\n'.format(
+                '{}：{} \n[即时预览](https://t.me/iv?url=https://www.thepaper.cn/{}&rhash=71b085e544938c)     [thepaper 源站](https://www.thepaper.cn/{})\n'.format(
                     i + 1,
                     title[i].decode("utf-8"),
+                    url[i].decode("utf-8"),
                     url[i].decode("utf-8")))
         news_timestamp = cls._myredis.get("news_time")
         news_time = datetime.fromtimestamp(
