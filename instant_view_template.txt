@@ -1,9 +1,5 @@
 ~version: "2.1"
 
-# Example：
-# https://t.me/iv?url={URL}&rhash=71b085e544938c
-# https://t.me/iv?url=https://www.thepaper.cn/newsDetail_forward_5442188&rhash=71b085e544938c
-
 ?path: /newsDetail_forward_\d+$
 
 title: //div/h1[@class="news_title"]
@@ -20,7 +16,7 @@ body: //div[@class="video_txt_l"]/p
 
 @replace_tag(<fligure>): $body//strong[.//img]
 @replace_tag(<fligure>): $body//a[.//img]
-
+@replace_tag(<fligure>): $body//video
 
 ?path: /asktopic_detail_\d+$
 
@@ -40,6 +36,9 @@ cover: //div[has-class("user_bd03")]
 @remove: $body//div[@class="ask_answer"]//div[@style]
 @remove: $body//div[@class="ans_cont_more"]
 @remove: $body//div[@class="hdimg_bg"]
+@remove: $body//div[@class="ask_extra_link"]
+@remove: $body//div[@class="qusright_att"]
+@remove: $body//div[@class="ans_zan"]
 @remove: //div[@class="vuser_trbs"]
 @remove: //div[@class="ask_write clearfix"]
 @remove: //div[@class="ask_creator_tit"]
@@ -51,3 +50,5 @@ cover: //div[has-class("user_bd03")]
 @replace_tag(<fligure>): $body//strong[.//img]
 @replace_tag(<fligure>): $body//a[.//img]
 @replace_tag(<p>): $body//div//h3
+
+# @debug
