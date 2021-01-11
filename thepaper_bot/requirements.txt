@@ -8,7 +8,7 @@ django-redis==4.12.1
 idna==2.10
 lxml==4.5.2
 pkg-resources==0.0.0
-pytz==2020.1
+pytz==2020.5
 redis==3.5.3
 requests==2.24.0
 soupsieve==2.0.1
