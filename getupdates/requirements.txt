@@ -16,7 +16,7 @@ pycparser==2.19
 python-telegram-bot==12.2.0
 query-string==2019.4.13
 redis==3.3.11
-requests==2.22.0
+requests==2.27.1
 six==1.13.0
 soupsieve==1.9.5
 tornado==6.0.3
